@@ -1,4 +1,5 @@
 .idea
+Ign.vscode
 /logs
 /data
 .env
