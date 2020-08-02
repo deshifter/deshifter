@@ -1,11 +1,10 @@
 {
-  "name": "Laradock",
+  "name": "Exployer",
   "dockerComposeFile": "../docker-compose.yml",
-  "remoteUser": "laradock",
+  "remoteUser": "exployer",
   "runServices": [
     "nginx",
-    "postgres",
-    "pgadmin"
+    "postgres"
   ],
   "service": "workspace",
   "workspaceFolder": "/var/www",
