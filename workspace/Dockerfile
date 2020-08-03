@@ -173,7 +173,7 @@ RUN echo "" >> ~/.bashrc && \
 USER exployer
 
 # Global install
-composer global install
+RUN composer global install
 
 # Export composer vendor path
 RUN echo "" >> ~/.bashrc && \
