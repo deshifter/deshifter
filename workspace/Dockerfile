@@ -41,15 +41,10 @@ RUN apt-get update && \
         php${PHP_VERSION}-json \
         php${PHP_VERSION}-xml \
         php${PHP_VERSION}-mbstring \
-        php${PHP_VERSION}-mysql \
         php${PHP_VERSION}-pgsql \
-        php${PHP_VERSION}-sqlite \
-        php${PHP_VERSION}-sqlite3 \
         php${PHP_VERSION}-zip \
         php${PHP_VERSION}-bcmath \
-        php${PHP_VERSION}-memcached \
         php${PHP_VERSION}-gd \
-        php${PHP_VERSION}-dev \
         pkg-config \
         libcurl4-openssl-dev \
         libedit-dev \
