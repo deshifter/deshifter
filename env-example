@@ -41,6 +41,11 @@ COMPOSE_PROJECT_NAME=exployer
 # Accepted values: 7.4 - 7.3 - 7.2 - 7.1 - 7.0 - 5.6
 PHP_VERSION=7.4
 
+### Docker Host IP ########################################
+
+# Enter your Docker Host IP (will be appended to /etc/hosts). Default is `10.0.75.1`
+DOCKER_HOST_IP=10.0.75.1
+
 ### Windows Path ##########################################
 
 # A fix for Windows users, to ensure the application path works
