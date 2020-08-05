@@ -32,6 +32,7 @@ services:
           - PUID=${WORKSPACE_PUID}
           - PGID=${WORKSPACE_PGID}
           - NODE_VERSION=${WORKSPACE_NODE_VERSION}
+          - INSTALL_GIT_PROMPT=${WORKSPACE_INSTALL_GIT_PROMPT}
           - TZ=${WORKSPACE_TIMEZONE}
           - http_proxy
           - https_proxy
@@ -155,7 +156,7 @@ services:
     docker-in-docker:
       image: docker:19.03-dind
       environment:
-        DOCKER_TLS_SAN: DNS:docker-in-docker      
+        DOCKER_TLS_SAN: DNS:docker-in-docker
       privileged: true
       volumes:
         - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}
