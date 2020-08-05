@@ -45,6 +45,7 @@ RUN apt-get update && \
         php${PHP_VERSION}-zip \
         php${PHP_VERSION}-bcmath \
         php${PHP_VERSION}-gd \
+        php${PHP_VERSION}-dev \
         pkg-config \
         libcurl4-openssl-dev \
         libedit-dev \
@@ -58,8 +59,7 @@ RUN apt-get update && \
         curl \
         vim \
         nano \
-        postgresql-client \
-    && apt-get clean
+        postgresql-client
 
 #####################################
 # Composer:
@@ -72,9 +72,6 @@ RUN curl -s http://getcomposer.org/installer | php && \
 
 # Source the bash
 RUN . ~/.bashrc
-
-# Set Environment Variables
-ENV DEBIAN_FRONTEND noninteractive
 
 # Start as root
 USER root
