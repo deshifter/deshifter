@@ -180,6 +180,10 @@ RUN set -xe; php -v | head -n 1 | grep -q "PHP ${PHP_VERSION}."
 COPY ./laravel.ini /usr/local/etc/php/conf.d
 COPY ./xlaravel.pool.conf /usr/local/etc/php-fpm.d/
 
+ARG TZ=UTC
+
+RUN echo "date.timezone = ${TZ}" >> /usr/local/etc/php/conf.d/timezone.ini
+
 USER root
 
 # Clean up
