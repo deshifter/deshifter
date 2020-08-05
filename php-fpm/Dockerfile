@@ -97,7 +97,7 @@ RUN if [ ${INSTALL_SOAP} = true ]; then \
 # pgsql
 ###########################################################################
 
-ARG INSTALL_PGSQL=false
+ARG INSTALL_PGSQL=true
 
 RUN if [ ${INSTALL_PGSQL} = true ]; then \
     # Install the pgsql extension

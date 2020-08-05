@@ -238,8 +238,7 @@ RUN sed -i "s/xdebug.remote_autostart=0/xdebug.remote_autostart=1/" /etc/php/${P
 # Node / NVM:
 ###########################################################################
 
-# Check if NVM needs to be installed
-ARG NODE_VERSION=node
+ARG NODE_VERSION=14
 ENV NODE_VERSION ${NODE_VERSION}
 ENV NVM_DIR /home/exployer/.nvm
 
