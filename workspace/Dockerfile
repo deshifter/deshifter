@@ -238,10 +238,11 @@ RUN sed -i "s/xdebug.remote_autostart=0/xdebug.remote_autostart=1/" /etc/php/${P
 # Node / NVM:
 ###########################################################################
 
-# Check if NVM needs to be installed
-ARG NODE_VERSION=node
+ARG NODE_VERSION=14
 ENV NODE_VERSION ${NODE_VERSION}
 ENV NVM_DIR /home/exployer/.nvm
+
+USER exployer
 
 # Install nvm (A Node Version Manager)
 RUN mkdir -p $NVM_DIR && \
@@ -319,6 +320,7 @@ RUN if [ ${SHELL_OH_MY_ZSH} = true ]; then \
 ;fi
 
 USER exployer
+
 RUN if [ ${SHELL_OH_MY_ZSH} = true ]; then \
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh) --keep-zshrc" && \
     sed -i -r 's/^plugins=\(.*?\)$/plugins=(laravel5)/' /home/exployer/.zshrc && \
