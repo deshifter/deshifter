@@ -175,7 +175,7 @@ RUN if [ ${INSTALL_IMAGEMAGICK} = true ]; then \
 # Install additional locales:
 ###########################################################################
 
-ARG INSTALL_ADDITIONAL_LOCALES=false
+ARG INSTALL_ADDITIONAL_LOCALES=true
 ARG ADDITIONAL_LOCALES
 
 RUN if [ ${INSTALL_ADDITIONAL_LOCALES} = true ]; then \
