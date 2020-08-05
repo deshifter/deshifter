@@ -242,6 +242,8 @@ ARG NODE_VERSION=14
 ENV NODE_VERSION ${NODE_VERSION}
 ENV NVM_DIR /home/exployer/.nvm
 
+USER exployer
+
 # Install nvm (A Node Version Manager)
 RUN mkdir -p $NVM_DIR && \
     curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | bash \
@@ -318,6 +320,7 @@ RUN if [ ${SHELL_OH_MY_ZSH} = true ]; then \
 ;fi
 
 USER exployer
+
 RUN if [ ${SHELL_OH_MY_ZSH} = true ]; then \
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh) --keep-zshrc" && \
     sed -i -r 's/^plugins=\(.*?\)$/plugins=(laravel5)/' /home/exployer/.zshrc && \
