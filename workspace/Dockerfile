@@ -4,80 +4,21 @@
 #--------------------------------------------------------------------------
 #
 
-FROM phusion/baseimage:bionic-1.0.0
-
-RUN DEBIAN_FRONTEND=noninteractive
-RUN locale-gen en_US.UTF-8
-
-ENV LANGUAGE=en_US.UTF-8
-ENV LC_ALL=en_US.UTF-8
-ENV LC_CTYPE=en_US.UTF-8
-ENV LANG=en_US.UTF-8
-ENV TERM xterm
-
-# Add the "PHP 7" ppa
-RUN apt-get install -y software-properties-common && \
-    add-apt-repository -y ppa:ondrej/php
-
-#
-#--------------------------------------------------------------------------
-# Software's Installation
-#--------------------------------------------------------------------------
-#
-
 ARG PHP_VERSION
+FROM expocker/workspace:${PHP_VERSION}
 
-RUN echo 'DPkg::options { "--force-confdef"; };' >> /etc/apt/apt.conf
+LABEL maintainer="Artem Fufaldin <artem.fufaldin@gmail.com>"
 
-# Install "PHP Extentions", "libraries", "Software's"
-RUN apt-get update && \
-    apt-get upgrade -y && \
-    apt-get install -y --allow-downgrades --allow-remove-essential \
-        --allow-change-held-packages \
-        php${PHP_VERSION}-cli \
-        php${PHP_VERSION}-common \
-        php${PHP_VERSION}-curl \
-        php${PHP_VERSION}-intl \
-        php${PHP_VERSION}-json \
-        php${PHP_VERSION}-xml \
-        php${PHP_VERSION}-mbstring \
-        php${PHP_VERSION}-pgsql \
-        php${PHP_VERSION}-zip \
-        php${PHP_VERSION}-bcmath \
-        php${PHP_VERSION}-gd \
-        php${PHP_VERSION}-dev \
-        pkg-config \
-        libcurl4-openssl-dev \
-        libedit-dev \
-        libssl-dev \
-        libxml2-dev \
-        xz-utils \
-        libsqlite3-dev \
-        rsync \
-        sqlite3 \
-        git \
-        curl \
-        vim \
-        nano \
-        postgresql-client
-
-#####################################
-# Composer:
-#####################################
-
-# Install composer and add its bin to the PATH.
-RUN curl -s http://getcomposer.org/installer | php && \
-    echo "export PATH=${PATH}:/var/www/vendor/bin" >> ~/.bashrc && \
-    mv composer.phar /usr/local/bin/composer
-
-# Source the bash
-RUN . ~/.bashrc
+# Set Environment Variables
+ARG DEBIAN_FRONTEND=noninteractive
 
 # Start as root
 USER root
 
+ARG PHP_VERSION
+
 ###########################################################################
-# exployer non-root user:
+# Expocker non-root user:
 ###########################################################################
 
 # Add a non-root user to prevent files being created with root permissions on host machine.
@@ -90,9 +31,9 @@ ENV PGID ${PGID}
 RUN set -xe; \
     apt-get update -yqq && \
     pecl channel-update pecl.php.net && \
-    groupadd -g ${PGID} exployer && \
-    useradd -u ${PUID} -g exployer -m exployer -G docker_env && \
-    usermod -p "*" exployer -s /bin/bash && \
+    groupadd -g ${PGID} expocker && \
+    useradd -u ${PUID} -g expocker -m expocker -G docker_env && \
+    usermod -p "*" expocker -s /bin/bash && \
     apt-get install -yqq \
       apt-utils \
       #
@@ -101,11 +42,11 @@ RUN set -xe; \
       #--------------------------------------------------------------------------
       #
       # Mandatory Software's such as ("php-cli", "git", "vim", ....) are
-      # installed on the base image 'exployer/workspace' image. If you want
+      # installed on the base image 'expocker/workspace' image. If you want
       # to add more Software's or remove existing one, you need to edit the
-      # base image (https://github.com/exployer/workspace).
+      # base image (https://github.com/expocker/workspace).
       #
-      # next lines are here because there is no auto build on dockerhub see https://github.com/exployer/exployer/pull/1903#issuecomment-463142846
+      # next lines are here because there is no auto build on dockerhub see https://github.com/expocker/expocker/pull/1903#issuecomment-463142846
       libzip-dev zip unzip \
       # Install the zip extension
       php${PHP_VERSION}-zip \
@@ -129,17 +70,17 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 USER root
 
 COPY ./aliases.sh /root/aliases.sh
-COPY ./aliases.sh /home/exployer/aliases.sh
+COPY ./aliases.sh /home/expocker/aliases.sh
 
 RUN sed -i 's/\r//' /root/aliases.sh && \
-    sed -i 's/\r//' /home/exployer/aliases.sh && \
-    chown exployer:exployer /home/exployer/aliases.sh && \
+    sed -i 's/\r//' /home/expocker/aliases.sh && \
+    chown expocker:expocker /home/expocker/aliases.sh && \
     echo "" >> ~/.bashrc && \
     echo "# Load Custom Aliases" >> ~/.bashrc && \
     echo "source ~/aliases.sh" >> ~/.bashrc && \
 	  echo "" >> ~/.bashrc
 
-USER exployer
+USER expocker
 
 RUN echo "" >> ~/.bashrc && \
     echo "# Load Custom Aliases" >> ~/.bashrc && \
@@ -153,16 +94,16 @@ RUN echo "" >> ~/.bashrc && \
 USER root
 
 # Add the composer.json
-COPY ./composer.json /home/exployer/.composer/composer.json
+COPY ./composer.json /home/expocker/.composer/composer.json
 
-# Make sure that ~/.composer belongs to exployer
-RUN chown -R exployer:exployer /home/exployer/.composer
+# Make sure that ~/.composer belongs to expocker
+RUN chown -R expocker:expocker /home/expocker/.composer
 
 # Export composer vendor path
 RUN echo "" >> ~/.bashrc && \
     echo 'export PATH="$HOME/.composer/vendor/bin:$PATH"' >> ~/.bashrc
 
-USER exployer
+USER expocker
 
 # Global install
 RUN composer global install
@@ -176,7 +117,7 @@ RUN echo "" >> ~/.bashrc && \
 ###########################################################################
 
 # add ./vendor/bin to non-root user's bashrc (needed for phpunit)
-USER exployer
+USER expocker
 
 RUN echo "" >> ~/.bashrc && \
     echo 'export PATH="/var/www/vendor/bin:$PATH"' >> ~/.bashrc
@@ -240,9 +181,9 @@ RUN sed -i "s/xdebug.remote_autostart=0/xdebug.remote_autostart=1/" /etc/php/${P
 
 ARG NODE_VERSION=14
 ENV NODE_VERSION ${NODE_VERSION}
-ENV NVM_DIR /home/exployer/.nvm
+ENV NVM_DIR /home/expocker/.nvm
 
-USER exployer
+USER expocker
 
 # Install nvm (A Node Version Manager)
 RUN mkdir -p $NVM_DIR && \
@@ -251,7 +192,7 @@ RUN mkdir -p $NVM_DIR && \
     && nvm install ${NODE_VERSION} \
     && nvm use ${NODE_VERSION} \
     && nvm alias ${NODE_VERSION} \
-    && ln -s `npm bin --global` /home/exployer/.node-bin
+    && ln -s `npm bin --global` /home/expocker/.node-bin
 
 # Wouldn't execute when added to the RUN statement in the above block
 # Source NVM when loading bash since ~/.profile isn't loaded on non-login shell
@@ -263,11 +204,11 @@ RUN echo "" >> ~/.bashrc && \
 USER root
 
 RUN echo "" >> ~/.bashrc && \
-    echo 'export NVM_DIR="/home/exployer/.nvm"' >> ~/.bashrc && \
+    echo 'export NVM_DIR="/home/expocker/.nvm"' >> ~/.bashrc && \
     echo '[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm' >> ~/.bashrc
 
 # Add PATH for node
-ENV PATH $PATH:/home/exployer/.node-bin
+ENV PATH $PATH:/home/expocker/.node-bin
 
 # Make it so the node modules can be executed with 'docker-compose exec'
 # We'll create symbolic links into '/usr/local/bin'.
@@ -288,7 +229,7 @@ RUN if [ ${INSTALL_IMAGE_OPTIMIZERS} = true ]; then \
     exec bash && . ~/.bashrc && npm install -g svgo \
 ;fi
 
-USER exployer
+USER expocker
 
 ###########################################################################
 # ImageMagick:
@@ -333,11 +274,11 @@ RUN if [ ${SHELL_OH_MY_ZSH} = true ]; then \
     apt install -y zsh \
 ;fi
 
-USER exployer
+USER expocker
 
 RUN if [ ${SHELL_OH_MY_ZSH} = true ]; then \
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh) --keep-zshrc" && \
-    sed -i -r 's/^plugins=\(.*?\)$/plugins=(laravel5)/' /home/exployer/.zshrc && \
+    sed -i -r 's/^plugins=\(.*?\)$/plugins=(laravel5)/' /home/expocker/.zshrc && \
     echo '\n\
 bindkey "^[OB" down-line-or-search\n\
 bindkey "^[OC" forward-char\n\
@@ -349,7 +290,7 @@ bindkey "^[[3~" delete-char\n\
 bindkey "^[[4~" end-of-line\n\
 bindkey "^[[5~" up-line-or-history\n\
 bindkey "^[[6~" down-line-or-history\n\
-bindkey "^?" backward-delete-char\n' >> /home/exployer/.zshrc \
+bindkey "^?" backward-delete-char\n' >> /home/expocker/.zshrc \
 ;fi
 
 USER root
@@ -359,6 +300,18 @@ USER root
 # Final Touch
 #--------------------------------------------------------------------------
 #
+
+RUN rm -f /etc/service/sshd/down
+
+# Regenerate SSH host keys. baseimage-docker does not contain any, so you
+# have to do that yourself. You may also comment out this instruction; the
+# init system will auto-generate one during boot.
+RUN /etc/my_init.d/00_regen_ssh_host_keys.sh
+RUN /usr/sbin/enable_insecure_key
+
+## Install an SSH of your choice.
+COPY your_key.pub /tmp/your_key.pub
+RUN cat /tmp/your_key.pub >> /root/.ssh/authorized_keys && rm -f /tmp/your_key.pub
 
 USER root
 

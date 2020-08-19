@@ -5,59 +5,24 @@
 #
 
 ARG PHP_VERSION
-FROM php:${PHP_VERSION}-fpm
+FROM expocker/php-fpm:${PHP_VERSION}
+
+LABEL maintainer="Artem Fufaldin <artem.fufaldin@gmail.com>"
 
 # Set Environment Variables
 ENV DEBIAN_FRONTEND noninteractive
 
-#
-#--------------------------------------------------------------------------
-# Software's Installation
-#--------------------------------------------------------------------------
-#
-# Installing tools and PHP extentions using "apt", "docker-php", "pecl",
-#
+# Start as root
+USER root
 
-# Install "curl", "libmemcached-dev", "libpq-dev", "libjpeg-dev",
-#         "libpng-dev", "libfreetype6-dev", "libssl-dev", "libmcrypt-dev",
-RUN set -eux && \
-    apt-get update && \
-    apt-get upgrade -y && \
-    apt-get install -y --no-install-recommends \
-            curl \
-            libz-dev \
-            libpq-dev \
-            libjpeg-dev \
-            libpng-dev \
-            libfreetype6-dev \
-            libssl-dev \
-            libmcrypt-dev \
-            libonig-dev
-
-RUN set -eux && \
-    # Install the PHP pdo_pgsql extention
-    docker-php-ext-install pdo_pgsql && \
-    # Install the PHP bcmath library
-    docker-php-ext-install bcmath && \
-    # Install the PHP gd library
-    docker-php-ext-configure gd \
-            --prefix=/usr \
-            --with-jpeg \
-            --with-freetype && \
-    docker-php-ext-install gd && \
-    php -r 'var_dump(gd_info());'
+ARG PHP_VERSION
 
 # always run apt update when start and after add new source list, then clean up at end.
 RUN set -xe; \
-    apt-get update -yqq && \
+    apt-get update && \
     pecl channel-update pecl.php.net && \
-    apt-get install -yqq \
-      apt-utils \
-      libzip-dev zip unzip && \
-      docker-php-ext-configure zip && \
-      # Install the zip extension
-      docker-php-ext-install zip && \
-      php -m | grep -q 'zip'
+    apt-get -o DPkg::options::="--force-confold" -y upgrade
+    
 
 #
 #--------------------------------------------------------------------------
@@ -69,6 +34,35 @@ RUN set -xe; \
 # Example:
 #   - INSTALL_SOAP=true
 #
+
+###########################################################################
+# GD:
+###########################################################################
+
+ARG INSTALL_GD=false
+RUN if [ ${INSTALL_GD} = true ]; then \
+  apt-get install -y libjpeg-dev \
+                     libpng-dev \
+                     libfreetype6-dev && \
+  docker-php-ext-configure gd --prefix=/usr \
+                              --with-jpeg \
+                              --with-freetype && \
+  docker-php-ext-install gd && \
+  php -r 'var_dump(gd_info());' \
+;fi
+
+###########################################################################
+# ZIP:
+###########################################################################
+
+ARG INSTALL_ZIP=false
+RUN if [ ${INSTALL_ZIP} = true ]; then \
+  apt-get -y install libzip-dev zip unzip && \
+  docker-php-ext-configure zip && \
+  # Install the zip extension
+  docker-php-ext-install zip && \
+  php -m | grep -q 'zip' \
+;fi
 
 ###########################################################################
 # BZ2:
@@ -94,14 +88,27 @@ RUN if [ ${INSTALL_SOAP} = true ]; then \
 ;fi
 
 ###########################################################################
-# pgsql
+# MYSQL:
+###########################################################################
+
+ARG INSTALL_MYSQL=true
+
+RUN if [ ${INSTALL_MYSQL} = true ]; then \
+    apt-get install -y libpq-dev && \
+    # Install the pdo_pgsql pgsql extensions
+    docker-php-ext-install pdo_mysql mysql \
+;fi
+
+###########################################################################
+# PGSQL:
 ###########################################################################
 
 ARG INSTALL_PGSQL=true
 
 RUN if [ ${INSTALL_PGSQL} = true ]; then \
-    # Install the pgsql extension
-    docker-php-ext-install pgsql \
+    apt-get install -y libpq-dev && \
+    # Install the pdo_pgsql pgsql extensions
+    docker-php-ext-install pdo_pgsql pgsql \
 ;fi
 
 ###########################################################################

@@ -1,7 +1,7 @@
 {
-  "name": "Exployer",
+  "name": "Expocker",
   "dockerComposeFile": "../docker-compose.yml",
-  "remoteUser": "exployer",
+  "remoteUser": "expocker",
   "runServices": [
     "nginx",
     "postgres"

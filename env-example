@@ -14,7 +14,7 @@ APP_CODE_PATH_CONTAINER=/var/www
 APP_CODE_CONTAINER_FLAG=:cached
 
 # Choose storage path on your machine. For all storage systems
-DATA_PATH_HOST=~/.exployer/data
+DATA_PATH_HOST=~/.expocker/data
 
 ### Drivers ################################################
 
@@ -32,8 +32,8 @@ COMPOSE_FILE=docker-compose.yml
 # Change the separator from : to ; on Windows
 COMPOSE_PATH_SEPARATOR=:
 
-# Define the prefix of container names. This is useful if you have multiple projects that use exployer to have separate containers per project.
-COMPOSE_PROJECT_NAME=exployer
+# Define the prefix of container names. This is useful if you have multiple projects that use expocker to have separate containers per project.
+COMPOSE_PROJECT_NAME=expocker
 
 ### PHP Version ###########################################
 
