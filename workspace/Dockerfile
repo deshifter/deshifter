@@ -5,12 +5,12 @@
 #
 
 ARG PHP_VERSION
-FROM expocker/workspace:${PHP_VERSION}
+FROM deshifter/workspace:${PHP_VERSION}
 
 LABEL maintainer="Artem Fufaldin <artem.fufaldin@gmail.com>"
 
 # Set Environment Variables
-ARG DEBIAN_FRONTEND=noninteractive
+ENV DEBIAN_FRONTEND noninteractive
 
 # Start as root
 USER root
@@ -18,7 +18,7 @@ USER root
 ARG PHP_VERSION
 
 ###########################################################################
-# Expocker non-root user:
+# Deshifter non-root user:
 ###########################################################################
 
 # Add a non-root user to prevent files being created with root permissions on host machine.
@@ -31,9 +31,9 @@ ENV PGID ${PGID}
 RUN set -xe; \
     apt-get update -yqq && \
     pecl channel-update pecl.php.net && \
-    groupadd -g ${PGID} expocker && \
-    useradd -u ${PUID} -g expocker -m expocker -G docker_env && \
-    usermod -p "*" expocker -s /bin/bash && \
+    groupadd -g ${PGID} deshifter && \
+    useradd -u ${PUID} -g deshifter -m deshifter -G docker_env && \
+    usermod -p "*" deshifter -s /bin/bash && \
     apt-get install -yqq \
       apt-utils \
       #
@@ -42,11 +42,11 @@ RUN set -xe; \
       #--------------------------------------------------------------------------
       #
       # Mandatory Software's such as ("php-cli", "git", "vim", ....) are
-      # installed on the base image 'expocker/workspace' image. If you want
+      # installed on the base image 'deshifter/workspace' image. If you want
       # to add more Software's or remove existing one, you need to edit the
-      # base image (https://github.com/expocker/workspace).
+      # base image (https://github.com/deshifter/workspace).
       #
-      # next lines are here because there is no auto build on dockerhub see https://github.com/expocker/expocker/pull/1903#issuecomment-463142846
+      # next lines are here because there is no auto build on dockerhub see https://github.com/deshifter/deshifter/pull/1903#issuecomment-463142846
       libzip-dev zip unzip \
       # Install the zip extension
       php${PHP_VERSION}-zip \
@@ -70,17 +70,17 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 USER root
 
 COPY ./aliases.sh /root/aliases.sh
-COPY ./aliases.sh /home/expocker/aliases.sh
+COPY ./aliases.sh /home/deshifter/aliases.sh
 
 RUN sed -i 's/\r//' /root/aliases.sh && \
-    sed -i 's/\r//' /home/expocker/aliases.sh && \
-    chown expocker:expocker /home/expocker/aliases.sh && \
+    sed -i 's/\r//' /home/deshifter/aliases.sh && \
+    chown deshifter:deshifter /home/deshifter/aliases.sh && \
     echo "" >> ~/.bashrc && \
     echo "# Load Custom Aliases" >> ~/.bashrc && \
     echo "source ~/aliases.sh" >> ~/.bashrc && \
 	  echo "" >> ~/.bashrc
 
-USER expocker
+USER deshifter
 
 RUN echo "" >> ~/.bashrc && \
     echo "# Load Custom Aliases" >> ~/.bashrc && \
@@ -94,16 +94,16 @@ RUN echo "" >> ~/.bashrc && \
 USER root
 
 # Add the composer.json
-COPY ./composer.json /home/expocker/.composer/composer.json
+COPY ./composer.json /home/deshifter/.composer/composer.json
 
-# Make sure that ~/.composer belongs to expocker
-RUN chown -R expocker:expocker /home/expocker/.composer
+# Make sure that ~/.composer belongs to deshifter
+RUN chown -R deshifter:deshifter /home/deshifter/.composer
 
 # Export composer vendor path
 RUN echo "" >> ~/.bashrc && \
     echo 'export PATH="$HOME/.composer/vendor/bin:$PATH"' >> ~/.bashrc
 
-USER expocker
+USER deshifter
 
 # Global install
 RUN composer global install
@@ -117,7 +117,7 @@ RUN echo "" >> ~/.bashrc && \
 ###########################################################################
 
 # add ./vendor/bin to non-root user's bashrc (needed for phpunit)
-USER expocker
+USER deshifter
 
 RUN echo "" >> ~/.bashrc && \
     echo 'export PATH="/var/www/vendor/bin:$PATH"' >> ~/.bashrc
@@ -181,9 +181,9 @@ RUN sed -i "s/xdebug.remote_autostart=0/xdebug.remote_autostart=1/" /etc/php/${P
 
 ARG NODE_VERSION=14
 ENV NODE_VERSION ${NODE_VERSION}
-ENV NVM_DIR /home/expocker/.nvm
+ENV NVM_DIR /home/deshifter/.nvm
 
-USER expocker
+USER deshifter
 
 # Install nvm (A Node Version Manager)
 RUN mkdir -p $NVM_DIR && \
@@ -192,7 +192,7 @@ RUN mkdir -p $NVM_DIR && \
     && nvm install ${NODE_VERSION} \
     && nvm use ${NODE_VERSION} \
     && nvm alias ${NODE_VERSION} \
-    && ln -s `npm bin --global` /home/expocker/.node-bin
+    && ln -s `npm bin --global` /home/deshifter/.node-bin
 
 # Wouldn't execute when added to the RUN statement in the above block
 # Source NVM when loading bash since ~/.profile isn't loaded on non-login shell
@@ -204,11 +204,11 @@ RUN echo "" >> ~/.bashrc && \
 USER root
 
 RUN echo "" >> ~/.bashrc && \
-    echo 'export NVM_DIR="/home/expocker/.nvm"' >> ~/.bashrc && \
+    echo 'export NVM_DIR="/home/deshifter/.nvm"' >> ~/.bashrc && \
     echo '[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm' >> ~/.bashrc
 
 # Add PATH for node
-ENV PATH $PATH:/home/expocker/.node-bin
+ENV PATH $PATH:/home/deshifter/.node-bin
 
 # Make it so the node modules can be executed with 'docker-compose exec'
 # We'll create symbolic links into '/usr/local/bin'.
@@ -229,7 +229,7 @@ RUN if [ ${INSTALL_IMAGE_OPTIMIZERS} = true ]; then \
     exec bash && . ~/.bashrc && npm install -g svgo \
 ;fi
 
-USER expocker
+USER deshifter
 
 ###########################################################################
 # ImageMagick:
@@ -274,11 +274,11 @@ RUN if [ ${SHELL_OH_MY_ZSH} = true ]; then \
     apt install -y zsh \
 ;fi
 
-USER expocker
+USER deshifter
 
 RUN if [ ${SHELL_OH_MY_ZSH} = true ]; then \
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh) --keep-zshrc" && \
-    sed -i -r 's/^plugins=\(.*?\)$/plugins=(laravel5)/' /home/expocker/.zshrc && \
+    sed -i -r 's/^plugins=\(.*?\)$/plugins=(laravel5)/' /home/deshifter/.zshrc && \
     echo '\n\
 bindkey "^[OB" down-line-or-search\n\
 bindkey "^[OC" forward-char\n\
@@ -290,7 +290,7 @@ bindkey "^[[3~" delete-char\n\
 bindkey "^[[4~" end-of-line\n\
 bindkey "^[[5~" up-line-or-history\n\
 bindkey "^[[6~" down-line-or-history\n\
-bindkey "^?" backward-delete-char\n' >> /home/expocker/.zshrc \
+bindkey "^?" backward-delete-char\n' >> /home/deshifter/.zshrc \
 ;fi
 
 USER root

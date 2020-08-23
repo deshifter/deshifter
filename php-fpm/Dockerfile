@@ -5,7 +5,7 @@
 #
 
 ARG PHP_VERSION
-FROM expocker/php-fpm:${PHP_VERSION}
+FROM deshifter/php-fpm:${PHP_VERSION}
 
 LABEL maintainer="Artem Fufaldin <artem.fufaldin@gmail.com>"
 
